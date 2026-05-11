@@ -1,0 +1,16 @@
+{
+    "device_name": "TCP-to-RTU Gateway",
+    "debug": true,
+    "timeout_ms": 500,
+    "baudrate": 115200,
+    "ports": [
+        502,
+        503,
+        504
+    ],
+    "network": {
+        "ip": "192.168.1.10",
+        "gateway": "192.168.1.1",
+        "mask": "255.255.255.0"
+    }
+}
