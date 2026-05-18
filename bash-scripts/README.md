@@ -60,3 +60,103 @@ x="hello world"
 printf '%s\n' '$x'
 ```
 Output is `$x`
+
+### Arithmetic expansion
+
+```bash
+$(( expression ))
+```
+
+#### Why `$` can be omitted
+
+Because `$(( ... ))` already creates an arithmetic context.
+Bash automatically interprets tokens as variables. For example,
+
+```bash
+x=10
+y=20
+echo $(( x + y ))
+```
+
+is equivalent to
+
+```bash
+echo $(( $x + $y ))
+```
+
+but the first form is cleaner
+
+#### Assignment
+
+```bash
+x=5
+echo $(( x = x + 1 ))
+echo "$x"
+```
+
+#### Increment/Decrement
+
+```bash
+((x++))
+((x--))
+((++x))
+((--x))
+```
+Example:
+
+```bash
+x=5
+echo $((x++))
+echo "$x"
+```
+
+Output:
+
+```text
+5
+6
+```
+
+Because:
+- `x++` is post-incremnt
+- It returns the old value first
+- Then increments by 1
+
+#### `(( ... ))` vs `$(( ... ))`
+
+These two are easy to confuse
+
+`$(( ... ))` is **arithmetic expansion**, which is used to produce a value
+
+```bash
+result=$((1 + 2))
+echo "$result"
+```
+
+`(( ... ))` is **arithmetic command**, which is used for arithmetic operations or conditions
+
+```bash
+((x = 5 + 3))
+echo "$x"
+```
+
+#### Exit Status
+
+``(( ... )) behaves like a shell command and has an exit status
+- result ≠ 0 → success
+- result = 0 → failure
+
+#### Integer Only
+
+```bash
+echo $((3 / 2))
+```
+
+Output:
+
+```text
+1
+```
+
+not `1.5`
+
