@@ -160,3 +160,139 @@ Output:
 
 not `1.5`
 
+## Test expressions
+
+Bash has three forms of test expressions. They look similar but have important differences.
+
+| Form    | Type               | Use for                        |
+|---------|--------------------|--------------------------------|
+| `[ ]`   | POSIX command      | portable string/file tests     |
+| `[[ ]]` | bash keyword       | string tests, pattern matching |
+| `(( ))` | arithmetic command | numeric comparisons            |
+
+### `[ ]` — POSIX test command
+
+`[ ]` is actually the `test` command. It is portable (works in `sh`) but has gotchas.
+
+**String tests:**
+
+| Expression         | True when             |
+|--------------------|-----------------------|
+| `[ -z "$s" ]`      | `$s` is empty         |
+| `[ -n "$s" ]`      | `$s` is non-empty     |
+| `[ "$a" = "$b" ]`  | strings are equal     |
+| `[ "$a" != "$b" ]` | strings are not equal |
+
+**Numeric tests:**
+
+| Expression          | Meaning               |
+|---------------------|-----------------------|
+| `[ "$a" -eq "$b" ]` | equal                 |
+| `[ "$a" -ne "$b" ]` | not equal             |
+| `[ "$a" -lt "$b" ]` | less than             |
+| `[ "$a" -le "$b" ]` | less than or equal    |
+| `[ "$a" -gt "$b" ]` | greater than          |
+| `[ "$a" -ge "$b" ]` | greater than or equal |
+
+**File tests:**
+
+| Expression    | True when           |
+|---------------|---------------------|
+| `[ -e "$f" ]` | file exists         |
+| `[ -f "$f" ]` | regular file exists |
+| `[ -d "$f" ]` | directory exists    |
+| `[ -r "$f" ]` | file is readable    |
+| `[ -w "$f" ]` | file is writable    |
+| `[ -x "$f" ]` | file is executable  |
+
+**The quoting trap:**
+
+Always quote variables inside `[ ]`. Without quotes, word splitting can break the test:
+
+```bash
+name=""
+[ $name = "" ]   # becomes: [ = "" ] — syntax error!
+[ "$name" = "" ] # correct
+```
+
+**Logical operators:** use `-a` (and) and `-o` (or):
+
+```bash
+[ "$a" -gt 0 -a "$a" -lt 10 ]
+```
+
+But `-a` and `-o` are deprecated and error-prone. Prefer combining two `[ ]` with `&&` and `||`:
+
+```bash
+[ "$a" -gt 0 ] && [ "$a" -lt 10 ]
+```
+
+### `[[ ]]` — bash keyword
+
+`[[ ]]` is a bash built-in keyword, not a command. It avoids most of the quoting traps of `[ ]` and adds pattern matching.
+
+**No word splitting inside `[[ ]]`:**
+
+```bash
+name=""
+[[ $name == "" ]] # safe even without quotes
+```
+
+**Logical operators:** use `&&` and `||` directly inside:
+
+```bash
+[[ "$a" -gt 0 && "$a" -lt 10 ]]
+```
+
+**Pattern matching with `==`:**
+
+```bash
+file="report_2024.txt"
+[[ "$file" == *.txt ]]  # true: glob pattern on right side
+```
+
+Note: the right side of `==` is a glob pattern, not a string. Do not quote it if you want pattern matching — quoting makes it a literal string.
+
+**Regex matching with `=~`:**
+
+```bash
+input="abc123"
+[[ "$input" =~ ^[a-z]+[0-9]+$ ]]  # true
+```
+
+The regex is unquoted on the right side. Capture groups are available in `BASH_REMATCH`:
+
+```bash
+date="2024-05-19"
+[[ "$date" =~ ^([0-9]{4})-([0-9]{2})-([0-9]{2})$ ]]
+echo "${BASH_REMATCH[1]}"  # 2024
+echo "${BASH_REMATCH[2]}"  # 05
+echo "${BASH_REMATCH[3]}"  # 19
+```
+
+### `(( ))` — arithmetic command for comparisons
+
+For numeric comparisons, `(( ))` is cleaner than `[ ]` because it uses familiar math operators:
+
+```bash
+a=5
+if (( a > 3 )); then
+    echo "greater"
+fi
+```
+
+| `[ ]` / `[[ ]]` | `(( ))` |
+|------------------|---------|
+| `-eq` | `==` |
+| `-ne` | `!=` |
+| `-lt` | `<` |
+| `-le` | `<=` |
+| `-gt` | `>` |
+| `-ge` | `>=` |
+
+### Choosing the right form
+
+- Use `[[ ]]` for string and file tests in bash scripts — it is safer and more expressive than `[ ]`
+- Use `(( ))` for numeric comparisons
+- Use `[ ]` only when you need `sh` portability
+
