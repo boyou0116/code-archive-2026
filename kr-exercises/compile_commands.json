@@ -1,0 +1,26 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-o",
+      "app",
+      "math.c"
+    ],
+    "directory": "/home/daniel/code-archive-2026/kr-exercises",
+    "file": "/home/daniel/code-archive-2026/kr-exercises/math.c",
+    "output": "/home/daniel/code-archive-2026/kr-exercises/app"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-o",
+      "app",
+      "function_pointer.c"
+    ],
+    "directory": "/home/daniel/code-archive-2026/kr-exercises",
+    "file": "/home/daniel/code-archive-2026/kr-exercises/function_pointer.c",
+    "output": "/home/daniel/code-archive-2026/kr-exercises/app"
+  }
+]
